@@ -1,6 +1,6 @@
 # Bingo réversible
 
-Jeu de stratégie sur navigateur, jouable à deux en local, contre un CPU basique ou contre un Strong CPU, sur un plateau 4 × 4.
+Jeu de stratégie sur navigateur, jouable à deux en local, contre un CPU ou en CPU contre CPU, sur un plateau 4 × 4.
 
 ## Jouer
 
@@ -11,12 +11,13 @@ Adresse : `https://seb16120.github.io/bingo-reversible/`
 ## Modes
 
 - **2 joueurs** : les deux couleurs secrètes sont révélées séparément sur le même appareil.
-- **Vs. CPU** : le joueur humain est le joueur 1. Le CPU garde sa couleur secrète et joue automatiquement.
-- **Vs. Strong CPU** : le CPU estime progressivement la couleur du joueur humain à partir de ses coups, puis lance une recherche approfondie dans un Web Worker.
-- Le CPU basique ne joue pas au hasard : il cherche les victoires immédiates, évite de donner un alignement, limite les menaces au coup suivant et favorise les lignes prometteuses.
-- Le Strong CPU combine recherche itérative, minimax, élagage alpha-bêta, table de transposition, symétries du plateau et prudence variable selon sa confiance sur la couleur adverse.
-- Aucun CPU ne lit la couleur secrète réelle du joueur humain.
-- Le Strong CPU dispose d’un budget interne de 48 secondes et d’un arrêt forcé à 50 secondes, mais joue immédiatement s’il démontre une victoire forcée plus tôt.
+- **Vs. CPU** : le joueur humain affronte le CPU basique.
+- **Vs. CPU probabiliste** : le CPU tente de déduire la couleur adverse avant d’utiliser alpha-bêta et Monte-Carlo.
+- **CPU vs CPU** : chaque place peut être réglée indépendamment sur Basique ou Probabiliste.
+- Chaque CPU connaît uniquement sa propre couleur.
+- Le CPU basique cherche les victoires immédiates et bloque en priorité les gains adverses au coup suivant.
+- Le CPU probabiliste applique d’abord le même filtre défensif que le CPU basique, puis départage les coups sûrs avec sa recherche avancée.
+- Le CPU probabiliste analyse jusqu’à 56 secondes et force son meilleur coup trouvé au plus tard à 58 secondes.
 
 ## Règles principales
 
@@ -34,17 +35,17 @@ Adresse : `https://seb16120.github.io/bingo-reversible/`
 
 ## Développement local
 
-Aucune installation n’est nécessaire. Ouvrir simplement `index.html` dans un navigateur moderne. Le mode Strong CPU nécessite un navigateur autorisant les Web Workers ; en cas d’échec, le jeu revient automatiquement au CPU basique.
+Aucune installation n’est nécessaire. Ouvrir simplement `index.html` dans un navigateur moderne. Le CPU probabiliste nécessite un navigateur autorisant les Web Workers ; en cas d’échec, le jeu utilise son meilleur choix basique disponible.
 
 ## Fichiers
 
 - `index.html` : structure, menu et écrans du jeu ;
-- `styles.css`, `tile-fix.css`, `mode-cpu.css` et `result-score.css` : interface, tuiles et adaptation mobile ;
+- `styles.css`, `tile-fix.css`, `mode-cpu.css`, `result-score.css` et les fichiers `game-upgrade-*.css` : interface, tuiles et adaptation mobile ;
 - `js/config.js` : couleurs, tuiles, éléments de page et état initial ;
-- `js/match.js` : modes, séries, manches et couleurs secrètes ;
+- `js/match.js` : séries, manches et couleurs secrètes ;
 - `js/ui.js` : rendu du plateau et contrôles ;
-- `js/rules.js` : poses, retournements, déplacements, observations et victoires ;
-- `js/cpu.js` : génération des coups et CPU heuristique ;
-- `js/strong-cpu.js` : estimation probabiliste de la couleur humaine et gestion du moteur fort ;
-- `js/strong-cpu-worker.js` : recherche approfondie du Strong CPU ;
+- `js/rules.js` : poses, retournements, déplacements et victoires ;
+- `js/cpu.js` : moteur heuristique historique ;
+- `js/game-upgrade-v4.js` : contrôleurs humains/CPU, duel de CPU, inférence et défense prioritaire ;
+- `js/probabilistic-cpu-worker-v4.js` : recherche du CPU probabiliste avec filtrage défensif racine ;
 - `js/timer-result.js` : chronomètres, scores et fins de partie.
