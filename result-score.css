@@ -1,0 +1,72 @@
+/* Tableau du score courant/final affiché dans la fenêtre de résultat. */
+
+.result-scoreboard {
+  margin-top: 22px;
+  padding: 14px 16px 16px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, .16);
+}
+
+.result-score-title {
+  margin: 0 0 11px;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 850;
+  letter-spacing: .09em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.result-score-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+}
+
+.result-score-player {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  font-weight: 800;
+  text-align: left;
+}
+
+.result-score-player.right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.result-score-player .player-dot {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.result-score-number {
+  min-width: 1ch;
+  font-size: clamp(1.55rem, 5vw, 2.2rem);
+  line-height: 1;
+}
+
+.result-score-separator {
+  color: var(--muted);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+@media (max-width: 440px) {
+  .result-scoreboard {
+    padding-inline: 11px;
+  }
+
+  .result-score-row {
+    gap: 7px;
+  }
+
+  .result-score-player {
+    gap: 6px;
+    font-size: .86rem;
+  }
+}
