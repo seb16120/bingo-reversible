@@ -15,9 +15,6 @@ function renderBoard() {
     if (tile) {
       const visual = document.createElement("span");
       visual.className = `tile-visual tile-${tile.type} face-${tile.face}`;
-      const owner = document.createElement("span");
-      owner.className = `tile-owner owner-${tile.owner}`;
-      visual.appendChild(owner);
       cell.appendChild(visual);
     }
 
@@ -37,15 +34,17 @@ function cellAriaLabel(tile, index) {
   const col = (index % 4) + 1;
   if (!tile) return `Case vide, ligne ${row}, colonne ${col}`;
   const face = TILE_TYPES[tile.type].faces[tile.face];
-  return `Tuile ${COLORS[face.center].label}, encadrée de ${COLORS[face.border].label}, joueur ${tile.owner + 1}`;
+  return `Tuile ${COLORS[face.center].label}, encadrée de ${COLORS[face.border].label}, posée par ${playerName(tile.owner)}`;
 }
 
 function renderActions() {
   const special = emptyCells().length <= 2;
+  const cpuTurn = isCpuPlayer() || state.cpuThinking;
   const buttons = [...els.actionButtons.querySelectorAll("button")];
+
   buttons.forEach(button => {
     const action = button.dataset.action;
-    button.disabled = !special && action !== "place";
+    button.disabled = cpuTurn || !state.roundActive || (!special && action !== "place");
     button.classList.toggle("active", state.action === action);
   });
 
@@ -58,6 +57,11 @@ function renderActions() {
   els.emptyCount.textContent = `${empty} case${empty > 1 ? "s" : ""} libre${empty > 1 ? "s" : ""}`;
   els.reservePanel.classList.toggle("hidden", state.action !== "place");
 
+  if (cpuTurn && state.roundActive) {
+    setHint("Le CPU choisit son coup…");
+    return;
+  }
+
   if (state.action === "place") setHint("Choisissez une tuile, puis une case vide.");
   if (state.action === "flip") setHint("Touchez une tuile non protégée pour la retourner.");
   if (state.action === "move") {
@@ -69,7 +73,8 @@ function renderActions() {
 
 function renderReserve() {
   const player = state.currentPlayer;
-  els.reserveOwner.textContent = `Joueur ${player + 1}`;
+  const cpuTurn = isCpuPlayer() || state.cpuThinking;
+  els.reserveOwner.textContent = playerName(player);
   els.reserveList.innerHTML = "";
 
   Object.entries(TILE_TYPES).forEach(([type, data]) => {
@@ -79,7 +84,7 @@ function renderReserve() {
     button.type = "button";
     button.className = "reserve-item";
     button.classList.toggle("selected", state.selectedTileType === type);
-    button.disabled = count <= 0;
+    button.disabled = count <= 0 || cpuTurn || !state.roundActive;
     button.innerHTML = `
       <span class="tile-visual tile-${type} face-${face}"></span>
       <span><strong>${data.label}</strong><small>${COLORS[data.faces[face].center].label} visible</small></span>
@@ -91,6 +96,7 @@ function renderReserve() {
 }
 
 function selectReserveTile(type) {
+  if (!isHumanTurn()) return;
   if (state.selectedTileType === type) state.selectedFace = 1 - state.selectedFace;
   else {
     state.selectedTileType = type;
@@ -100,7 +106,7 @@ function selectReserveTile(type) {
 }
 
 function chooseAction(action) {
-  if (!state.roundActive) return;
+  if (!isHumanTurn()) return;
   const special = emptyCells().length <= 2;
   if (!special && action !== "place") return;
   state.action = action;
@@ -110,7 +116,7 @@ function chooseAction(action) {
 }
 
 function isCellInteractive(index) {
-  if (!state.roundActive) return false;
+  if (!isHumanTurn()) return false;
   const tile = state.board[index];
   if (state.action === "place") return !tile;
   if (state.action === "flip") return Boolean(tile) && index !== state.protectedIndex;
@@ -122,7 +128,7 @@ function isCellInteractive(index) {
 }
 
 function handleBoardClick(index) {
-  if (!state.roundActive) return;
+  if (!isHumanTurn()) return;
   if (state.action === "place") placeTile(index);
   if (state.action === "flip") flipTile(index);
   if (state.action === "move") moveTile(index);
