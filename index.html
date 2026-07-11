@@ -218,5 +218,20 @@
   <script src="js/timer-result.js?v=3"></script>
   <script src="js/game-upgrade-v2.js?v=1"></script>
   <script src="js/game-upgrade-v3.js?v=1"></script>
+  <script>
+    (() => {
+      const renderReserveBeforeControllerFix = renderReserve;
+      renderReserve = function renderReserveWithControllerSwitchFix() {
+        if (state.reserveMemoryPlayer !== state.currentPlayer) {
+          const human = state.mode === "local" || state.currentPlayer === 0;
+          if (human && state.faceMemory?.[state.currentPlayer]) {
+            state.selectedFace = state.faceMemory[state.currentPlayer][state.selectedTileType] ?? 0;
+          }
+          state.reserveMemoryPlayer = state.currentPlayer;
+        }
+        return renderReserveBeforeControllerFix();
+      };
+    })();
+  </script>
 </body>
 </html>
