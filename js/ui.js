@@ -18,7 +18,9 @@ function renderBoard() {
       cell.appendChild(visual);
     }
 
-    if (index === state.protectedIndex && tile) cell.classList.add("protected");
+    if (index === state.protectedIndex && tile) {
+      cell.classList.add("protected", `last-owner-${tile.owner}`);
+    }
     if (index === state.moveSource) cell.classList.add("selected-source");
     if (validDestinations.includes(index)) cell.classList.add("valid-destination");
     if (state.winningLine?.includes(index)) cell.classList.add("winning");
