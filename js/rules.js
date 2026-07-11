@@ -4,9 +4,11 @@ function placeTile(index) {
   const type = state.selectedTileType;
   if (state.reserves[state.currentPlayer][type] <= 0) return setHint("Cette tuile n’est plus disponible.", true);
 
+  const move = { action: "place", index, type, face: state.selectedFace };
+  const observation = beginStrongHumanMoveObservation(move);
   state.board[index] = { type, face: state.selectedFace, owner: state.currentPlayer };
   state.reserves[state.currentPlayer][type] -= 1;
-  completeAction(index);
+  completeAction(index, observation);
 }
 
 function flipTile(index) {
@@ -14,8 +16,11 @@ function flipTile(index) {
   const tile = state.board[index];
   if (!tile) return setHint("Choisissez une tuile à retourner.", true);
   if (index === state.protectedIndex) return setHint("La tuile du coup précédent est protégée.", true);
+
+  const move = { action: "flip", index };
+  const observation = beginStrongHumanMoveObservation(move);
   tile.face = 1 - tile.face;
-  completeAction(index);
+  completeAction(index, observation);
 }
 
 function moveTile(index) {
@@ -41,16 +46,20 @@ function moveTile(index) {
     return setHint("Le déplacement doit se faire d’une case, horizontalement ou verticalement, vers une case vide.", true);
   }
 
-  state.board[index] = state.board[state.moveSource];
-  state.board[state.moveSource] = null;
+  const from = state.moveSource;
+  const move = { action: "move", from, to: index };
+  const observation = beginStrongHumanMoveObservation(move);
+  state.board[index] = state.board[from];
+  state.board[from] = null;
   state.moveSource = null;
-  completeAction(index);
+  completeAction(index, observation);
 }
 
-function completeAction(playedIndex) {
+function completeAction(playedIndex, strongObservation = null) {
   state.moveNumber += 1;
   state.protectedIndex = playedIndex;
   state.winningLine = null;
+  finalizeStrongHumanMoveObservation(strongObservation);
 
   const outcome = findWinner();
   if (outcome) {
