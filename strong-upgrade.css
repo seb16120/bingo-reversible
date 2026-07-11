@@ -1,0 +1,19 @@
+/* Pastille du dernier joueur centrée sur la tuile. */
+.board-cell.protected::before {
+  left: 50%;
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: clamp(14px, 1.6vw, 20px);
+  height: clamp(14px, 1.6vw, 20px);
+}
+
+@media (max-width: 640px) {
+  .board-cell.protected::before {
+    left: 50%;
+    top: 50%;
+    bottom: auto;
+    width: 14px;
+    height: 14px;
+  }
+}
