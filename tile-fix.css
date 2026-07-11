@@ -1,0 +1,39 @@
+/* Correctif d’affichage des tuiles sur le plateau.
+   Les tuiles étaient des <span> en ligne : leur largeur et leur hauteur
+   n’étaient donc pas appliquées, ce qui les réduisait à un petit rectangle. */
+
+.board-cell {
+  padding: 0;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  line-height: 0;
+}
+
+.board-cell .tile-visual {
+  position: absolute;
+  inset: 7%;
+  display: block;
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+  border-width: clamp(6px, 1.15vw, 13px);
+  border-style: solid;
+  border-color: var(--border);
+  background: var(--center);
+  pointer-events: none;
+}
+
+/* La pastille bleu/rose indiquait le joueur ayant posé la tuile.
+   Elle ajoutait une troisième couleur trompeuse alors que seule la tuile
+   bicolore doit être visible. */
+.board-cell .tile-owner {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .board-cell .tile-visual {
+    inset: 6%;
+    border-width: 7px;
+  }
+}
