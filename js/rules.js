@@ -1,4 +1,5 @@
 function placeTile(index) {
+  if (!isHumanTurn()) return;
   if (state.board[index]) return setHint("Cette case est déjà occupée.", true);
   const type = state.selectedTileType;
   if (state.reserves[state.currentPlayer][type] <= 0) return setHint("Cette tuile n’est plus disponible.", true);
@@ -9,6 +10,7 @@ function placeTile(index) {
 }
 
 function flipTile(index) {
+  if (!isHumanTurn()) return;
   const tile = state.board[index];
   if (!tile) return setHint("Choisissez une tuile à retourner.", true);
   if (index === state.protectedIndex) return setHint("La tuile du coup précédent est protégée.", true);
@@ -17,6 +19,8 @@ function flipTile(index) {
 }
 
 function moveTile(index) {
+  if (!isHumanTurn()) return;
+
   if (state.moveSource === null) {
     if (!state.board[index]) return setHint("Choisissez d’abord une tuile.", true);
     if (index === state.protectedIndex) return setHint("La tuile du coup précédent est protégée.", true);
@@ -72,7 +76,10 @@ function completeAction(playedIndex) {
   renderAll();
   if (repetitions >= 3) {
     finishRound({ type: "draw", reason: "La même position complète est apparue trois fois." });
+    return;
   }
+
+  scheduleCpuTurn();
 }
 
 function findWinner() {
