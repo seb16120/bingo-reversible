@@ -1,7 +1,15 @@
-/* Mode local / CPU et repères de joueurs. */
+/* Modes local, CPU et Strong CPU, ainsi que les repères de joueurs. */
 
 .segmented-control.mode-control {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.mode-note {
+  display: block;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: .76rem;
+  line-height: 1.45;
 }
 
 .player-dot.p1 {
@@ -41,4 +49,15 @@
   font-size: .66rem;
   font-weight: 800;
   letter-spacing: .06em;
+}
+
+@media (max-width: 640px) {
+  .segmented-control.mode-control span {
+    min-height: 52px;
+    display: grid;
+    place-items: center;
+    padding-inline: 5px;
+    font-size: .78rem;
+    line-height: 1.15;
+  }
 }
