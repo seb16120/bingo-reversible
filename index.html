@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#171a24">
+  <meta name="description" content="Bingo réversible, jeu local à deux joueurs sur un plateau 4 × 4.">
+  <title>Bingo réversible</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Jeu local à 2 joueurs</p>
+        <h1>Bingo réversible</h1>
+      </div>
+      <button id="rulesBtn" class="icon-button" type="button" aria-label="Afficher les règles" title="Règles">?</button>
+    </header>
+
+    <main>
+      <section id="menuScreen" class="screen menu-screen" aria-labelledby="menuTitle">
+        <div class="hero-card">
+          <div class="hero-board" aria-hidden="true">
+            <div class="mini-tile tile-rb" data-face="0"></div>
+            <div class="mini-tile tile-yr" data-face="0"></div>
+            <div class="mini-tile tile-by" data-face="0"></div>
+            <div class="mini-tile tile-yr" data-face="1"></div>
+            <div class="mini-tile tile-by" data-face="1"></div>
+            <div class="mini-tile tile-rb" data-face="1"></div>
+            <div class="mini-tile tile-by" data-face="0"></div>
+            <div class="mini-tile tile-rb" data-face="0"></div>
+            <div class="mini-tile tile-yr" data-face="0"></div>
+          </div>
+          <div>
+            <p class="eyebrow">Retournez. Déplacez. Alignez.</p>
+            <h2 id="menuTitle">Préparer la partie</h2>
+            <p>Chaque joueur reçoit une couleur secrète. Le premier à en aligner quatre gagne la manche.</p>
+          </div>
+        </div>
+
+        <form id="setupForm" class="setup-card">
+          <fieldset>
+            <legend>Format</legend>
+            <div class="segmented-control" role="radiogroup" aria-label="Format de la partie">
+              <label><input type="radio" name="series" value="1"><span>1 manche</span></label>
+              <label><input type="radio" name="series" value="3" checked><span>BO3</span></label>
+              <label><input type="radio" name="series" value="5"><span>BO5</span></label>
+            </div>
+          </fieldset>
+
+          <label class="toggle-row" for="timersEnabled">
+            <span>
+              <strong>Partie chronométrée</strong>
+              <small>1 min par coup et 30 min par joueur, réinitialisées à chaque manche.</small>
+            </span>
+            <input id="timersEnabled" type="checkbox">
+            <span class="toggle" aria-hidden="true"></span>
+          </label>
+
+          <button class="primary-button" type="submit">Lancer la partie</button>
+        </form>
+      </section>
+
+      <section id="gameScreen" class="screen game-screen hidden" aria-live="polite">
+        <div class="match-header">
+          <div class="score-card player-card" id="player1Card">
+            <div class="player-title"><span class="player-dot p1"></span><strong>Joueur 1</strong></div>
+            <div class="player-stats">
+              <span>Manches <b id="scoreP1">0</b></span>
+              <span id="clockP1Wrap" class="clock hidden">⏱ <b id="clockP1">30:00</b></span>
+            </div>
+          </div>
+
+          <div class="round-card">
+            <span id="seriesLabel">BO3</span>
+            <strong id="roundLabel">Manche 1</strong>
+            <small id="moveLabel">Coup 1 / 50</small>
+          </div>
+
+          <div class="score-card player-card" id="player2Card">
+            <div class="player-title"><span class="player-dot p2"></span><strong>Joueur 2</strong></div>
+            <div class="player-stats">
+              <span>Manches <b id="scoreP2">0</b></span>
+              <span id="clockP2Wrap" class="clock hidden">⏱ <b id="clockP2">30:00</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="turn-banner">
+          <div>
+            <span id="turnText">Tour du joueur 1</span>
+            <small id="phaseText">Pose obligatoire</small>
+          </div>
+          <div id="turnClockWrap" class="turn-clock hidden" aria-label="Temps restant pour ce coup">
+            <span>Ce coup</span>
+            <strong id="turnClock">1:00</strong>
+          </div>
+        </div>
+
+        <div class="game-layout">
+          <section class="board-panel" aria-label="Plateau de jeu">
+            <div id="board" class="board" role="grid" aria-label="Plateau 4 par 4"></div>
+            <p id="boardHint" class="board-hint">Choisissez une tuile, puis une case vide.</p>
+          </section>
+
+          <aside class="control-panel">
+            <section class="panel-block">
+              <div class="panel-heading">
+                <h2>Action</h2>
+                <span id="emptyCount">16 cases libres</span>
+              </div>
+              <div id="actionButtons" class="action-buttons">
+                <button type="button" data-action="place" class="action-button active">Poser</button>
+                <button type="button" data-action="flip" class="action-button" disabled>Retourner</button>
+                <button type="button" data-action="move" class="action-button" disabled>Déplacer</button>
+              </div>
+            </section>
+
+            <section id="reservePanel" class="panel-block">
+              <div class="panel-heading">
+                <h2>Réserve</h2>
+                <span id="reserveOwner">Joueur 1</span>
+              </div>
+              <p class="microcopy">Touchez une tuile pour la choisir. Touchez-la à nouveau pour changer de face.</p>
+              <div id="reserveList" class="reserve-list"></div>
+            </section>
+
+            <section class="panel-block compact-block">
+              <div class="legend-row"><span class="protected-sample">🔒</span><span>Protégée pendant ce tour</span></div>
+              <div class="legend-row"><span class="center-sample"></span><span>Seule la couleur centrale compte</span></div>
+            </section>
+
+            <button id="quitBtn" class="secondary-button danger" type="button">Abandonner la partie</button>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="privacyOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
+    <div class="modal privacy-modal">
+      <p class="eyebrow" id="privacyStep">Couleur secrète</p>
+      <h2 id="privacyTitle">Joueur 1, regarde seul l’écran</h2>
+      <p id="privacyInstruction">Quand l’autre joueur ne regarde plus, révèle ta couleur.</p>
+      <div id="secretColorCard" class="secret-card concealed" aria-live="polite">
+        <span id="secretColorName">?</span>
+      </div>
+      <button id="privacyButton" class="primary-button" type="button">Révéler ma couleur</button>
+    </div>
+  </div>
+
+  <div id="resultOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="modal result-modal">
+      <p class="eyebrow" id="resultKicker">Fin de la manche</p>
+      <h2 id="resultTitle">Joueur 1 gagne !</h2>
+      <p id="resultText"></p>
+      <div id="revealedColors" class="revealed-colors"></div>
+      <div class="modal-actions">
+        <button id="nextRoundBtn" class="primary-button" type="button">Manche suivante</button>
+        <button id="backToMenuBtn" class="secondary-button" type="button">Retour au menu</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="rulesOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="modal rules-modal">
+      <button id="closeRulesBtn" class="modal-close" type="button" aria-label="Fermer">×</button>
+      <p class="eyebrow">Comment jouer</p>
+      <h2 id="rulesTitle">Règles de Bingo réversible</h2>
+      <div class="rules-content">
+        <h3>But</h3>
+        <p>Chaque joueur reçoit secrètement une couleur parmi rouge, jaune et bleu. Alignez quatre centres de votre couleur horizontalement, verticalement ou sur une grande diagonale.</p>
+
+        <h3>Les tuiles</h3>
+        <p>Chaque joueur possède trois exemplaires de chacune des trois tuiles réversibles : rouge/bleu, jaune/rouge et bleu/jaune. Vous choisissez librement la face visible au moment de la pose.</p>
+
+        <h3>Déroulement</h3>
+        <p>Tant qu’il reste plus de deux cases libres, poser une tuile est obligatoire. Dès qu’il ne reste que deux cases libres, vous pouvez à chaque tour poser, retourner ou déplacer une tuile d’une case horizontalement ou verticalement vers une case vide.</p>
+
+        <h3>Protection</h3>
+        <p>La tuile utilisée au coup précédent ne peut être ni retournée ni déplacée par l’adversaire. Elle redevient disponible au tour suivant.</p>
+
+        <h3>Fin de manche</h3>
+        <p>Une manche est nulle après trois répétitions de la même position complète ou si personne ne gagne au 50e coup. Avec les chronomètres activés, dépasser une minute pour un coup ou épuiser ses trente minutes fait perdre la manche.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
