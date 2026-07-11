@@ -58,6 +58,7 @@ const els = {
   resultKicker: document.querySelector("#resultKicker"),
   resultTitle: document.querySelector("#resultTitle"),
   resultText: document.querySelector("#resultText"),
+  resultScore: document.querySelector("#resultScore"),
   revealedColors: document.querySelector("#revealedColors"),
   nextRoundBtn: document.querySelector("#nextRoundBtn"),
   backToMenuBtn: document.querySelector("#backToMenuBtn"),
