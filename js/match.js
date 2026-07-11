@@ -2,7 +2,8 @@ function startMatch(event) {
   event.preventDefault();
   const form = new FormData(els.setupForm);
   const seriesLength = Number(form.get("series"));
-  const mode = form.get("mode") === "cpu" ? "cpu" : "local";
+  const requestedMode = form.get("mode");
+  const mode = requestedMode === "cpu" || requestedMode === "strong" ? requestedMode : "local";
 
   state = initialState();
   state.mode = mode;
@@ -40,6 +41,7 @@ function startRound(firstRound = false) {
   state.lastTimerTick = null;
   state.winningLine = null;
   state.cpuThinking = false;
+  resetStrongCpuKnowledge();
 
   els.resultOverlay.classList.add("hidden");
   renderAll();
@@ -64,21 +66,21 @@ function renderPrivacy() {
   els.secretColorCard.className = "secret-card";
 
   if (!revealed) {
-    els.privacyInstruction.textContent = state.mode === "cpu"
-      ? "Révèle ta couleur. Celle du CPU restera secrète jusqu’à la fin de la manche."
+    els.privacyInstruction.textContent = isCpuMode()
+      ? `Révèle ta couleur. Celle du ${playerName(1)} restera secrète jusqu’à la fin de la manche.`
       : "Quand l’autre joueur ne regarde plus, révèle ta couleur.";
     els.secretColorCard.classList.add("concealed");
     els.secretColorName.textContent = "?";
     els.privacyButton.textContent = "Révéler ma couleur";
   } else {
     const color = state.secretColors[player];
-    els.privacyInstruction.textContent = state.mode === "cpu"
+    els.privacyInstruction.textContent = isCpuMode()
       ? "Mémorise-la, puis masque-la pour commencer."
       : "Mémorise-la, puis masque-la avant de passer l’appareil.";
     els.secretColorCard.classList.add(COLORS[color].css);
     els.secretColorName.textContent = COLORS[color].label;
 
-    if (state.mode === "cpu") {
+    if (isCpuMode()) {
       els.privacyButton.textContent = "Masquer et commencer";
     } else {
       els.privacyButton.textContent = player === 0 ? "Masquer et passer au joueur 2" : "Masquer et commencer";
@@ -93,7 +95,7 @@ function handlePrivacyButton() {
     return;
   }
 
-  if (state.mode === "cpu") {
+  if (isCpuMode()) {
     activateRound();
     return;
   }
@@ -135,7 +137,7 @@ function renderHeader() {
   els.player2Name.textContent = playerName(1);
 
   els.turnText.textContent = isCpuPlayer()
-    ? "Tour du CPU"
+    ? `Tour du ${playerName(1)}`
     : `Tour du joueur ${state.currentPlayer + 1}`;
 
   els.player1Card.classList.toggle("active", state.currentPlayer === 0 && state.roundActive);
@@ -143,9 +145,14 @@ function renderHeader() {
   els.gameScreen.classList.toggle("cpu-turn", isCpuPlayer() && state.roundActive);
 
   const special = emptyCells().length <= 2;
-  els.phaseText.textContent = state.cpuThinking
-    ? "Le CPU réfléchit…"
-    : special
-      ? "Pose, retournement ou déplacement"
-      : "Pose obligatoire";
+  if (state.cpuThinking && state.mode === "strong") {
+    const stats = state.strongSearchStats;
+    els.phaseText.textContent = stats?.depth > 0
+      ? `Analyse forte · profondeur ${stats.depth} · ${(stats.elapsedMs / 1000).toFixed(1)} s`
+      : "Le Strong CPU analyse la position…";
+  } else if (state.cpuThinking) {
+    els.phaseText.textContent = "Le CPU réfléchit…";
+  } else {
+    els.phaseText.textContent = special ? "Pose, retournement ou déplacement" : "Pose obligatoire";
+  }
 }
