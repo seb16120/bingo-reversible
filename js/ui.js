@@ -60,7 +60,14 @@ function renderActions() {
   els.reservePanel.classList.toggle("hidden", state.action !== "place");
 
   if (cpuTurn && state.roundActive) {
-    setHint("Le CPU choisit son coup…");
+    if (state.mode === "strong") {
+      const stats = state.strongSearchStats;
+      setHint(stats?.depth > 0
+        ? `Le Strong CPU approfondit sa recherche (profondeur ${stats.depth}).`
+        : "Le Strong CPU analyse la position…");
+    } else {
+      setHint("Le CPU choisit son coup…");
+    }
     return;
   }
 
