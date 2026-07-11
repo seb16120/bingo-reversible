@@ -2,8 +2,10 @@
 
 /*
  * Le moteur probabiliste conserve l'alpha-bêta, le filtre tactique et le
- * Monte-Carlo du moteur v3. Cette couche limite toutefois les coups racine
- * à la liste validée par la défense du CPU basique dans le thread principal.
+ * Monte-Carlo du moteur v3. Cette couche limite les coups racine aux choix
+ * validés par la défense basique. Si aucune défense parfaite n'existe, elle
+ * conserve uniquement les coups donnant le moins de victoires immédiates à
+ * l'adversaire, au lieu de rendre toute la liberté à la recherche avancée.
  */
 importScripts("strong-cpu-worker-v3.js?v=1");
 
@@ -20,6 +22,45 @@ generateLegalMoves = function generateLegalMovesV4(position) {
   return filtered.length ? filtered : moves;
 };
 
+function rootMoveDanger(root, move, humanColors, cpuColor) {
+  const undo = applyMove(root, move);
+
+  if (hasColorWin(root.board, cpuColor)) {
+    undoMove(root, move, undo);
+    return -1_000_000;
+  }
+
+  let danger = humanColors.some(color => hasColorWin(root.board, color)) ? 10_000 : 0;
+  const replies = v4BaseGenerateLegalMoves(root);
+
+  for (const reply of replies) {
+    const replyUndo = applyMove(root, reply);
+    if (humanColors.some(color => hasColorWin(root.board, color))) danger += 1;
+    undoMove(root, reply, replyUndo);
+  }
+
+  undoMove(root, move, undo);
+  return danger;
+}
+
+function defensiveRootKeys(payload, root, requestedKeys) {
+  let moves = v4BaseGenerateLegalMoves(root);
+  if (requestedKeys?.size) {
+    const requested = moves.filter(move => requestedKeys.has(moveKey(move)));
+    if (requested.length) moves = requested;
+  }
+  if (!moves.length) return requestedKeys;
+
+  const beliefs = normalizedBeliefs(payload.beliefs, payload.cpuColor);
+  const humanColors = Object.keys(beliefs);
+  const scored = moves.map(move => ({
+    move,
+    danger: rootMoveDanger(root, move, humanColors, payload.cpuColor)
+  }));
+  const minimum = Math.min(...scored.map(entry => entry.danger));
+  return new Set(scored.filter(entry => entry.danger === minimum).map(entry => moveKey(entry.move)));
+}
+
 self.onmessage = event => {
   const message = event.data;
   if (!message || message.type !== "search") return;
@@ -35,10 +76,10 @@ self.onmessage = event => {
     };
 
     v4RootKey = rawPositionKey(root);
-    const allowed = Array.isArray(payload.allowedRootMoveKeys)
-      ? payload.allowedRootMoveKeys
-      : [];
-    v4AllowedRootMoves = allowed.length ? new Set(allowed) : null;
+    const requested = Array.isArray(payload.allowedRootMoveKeys) && payload.allowedRootMoveKeys.length
+      ? new Set(payload.allowedRootMoveKeys)
+      : null;
+    v4AllowedRootMoves = defensiveRootKeys(payload, root, requested);
 
     const result = v4BaseSearchBestMove(payload);
     self.postMessage({ type: "result", ...result });
