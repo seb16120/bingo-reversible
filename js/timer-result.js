@@ -75,6 +75,23 @@ function finishRound(result) {
   }
 
   els.resultText.textContent = result.reason;
+  els.resultScore.innerHTML = `
+    <p class="result-score-title">Score de la série</p>
+    <div class="result-score-row">
+      <div class="result-score-player">
+        <span class="player-dot p1" aria-hidden="true"></span>
+        <span>${playerName(0)}</span>
+      </div>
+      <strong class="result-score-number">${state.scores[0]}</strong>
+      <span class="result-score-separator">–</span>
+      <strong class="result-score-number">${state.scores[1]}</strong>
+      <div class="result-score-player right">
+        <span>${playerName(1)}</span>
+        <span class="player-dot p2" aria-hidden="true"></span>
+      </div>
+    </div>
+  `;
+
   els.revealedColors.innerHTML = [0, 1].map(player => {
     const color = state.secretColors[player];
     return `<div class="color-chip"><span>${playerName(player)}</span><span class="color-name ${COLORS[color].css}">${COLORS[color].label}</span></div>`;
