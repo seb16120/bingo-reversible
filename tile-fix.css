@@ -24,16 +24,45 @@
   pointer-events: none;
 }
 
-/* La pastille bleu/rose indiquait le joueur ayant posé la tuile.
-   Elle ajoutait une troisième couleur trompeuse alors que seule la tuile
-   bicolore doit être visible. */
+/* La pastille de propriétaire n’apparaît que sur la tuile du dernier coup,
+   qui est également la tuile protégée pendant le tour adverse. */
 .board-cell .tile-owner {
   display: none;
+}
+
+.board-cell.protected .tile-owner {
+  position: absolute;
+  z-index: 4;
+  left: clamp(5px, .7vw, 9px);
+  bottom: clamp(5px, .7vw, 9px);
+  display: block;
+  width: clamp(12px, 1.45vw, 18px);
+  height: clamp(12px, 1.45vw, 18px);
+  border-radius: 50%;
+}
+
+.board-cell.protected .tile-owner.owner-0 {
+  background: #ffffff;
+  border: 2px solid #111318;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .55);
+}
+
+.board-cell.protected .tile-owner.owner-1 {
+  background: #050609;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .6);
 }
 
 @media (max-width: 640px) {
   .board-cell .tile-visual {
     inset: 6%;
     border-width: 7px;
+  }
+
+  .board-cell.protected .tile-owner {
+    left: 4px;
+    bottom: 4px;
+    width: 13px;
+    height: 13px;
   }
 }
