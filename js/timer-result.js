@@ -21,9 +21,9 @@ function tickTimer() {
   renderTimers();
 
   if (state.turnTime <= 0) {
-    finishRound({ type: "win", winner: 1 - state.currentPlayer, reason: `Le joueur ${state.currentPlayer + 1} a dépassé une minute pour son coup.` });
+    finishRound({ type: "win", winner: 1 - state.currentPlayer, reason: `${playerName(state.currentPlayer)} a dépassé une minute pour son coup.` });
   } else if (state.totalTimes[state.currentPlayer] <= 0) {
-    finishRound({ type: "win", winner: 1 - state.currentPlayer, reason: `Le joueur ${state.currentPlayer + 1} a épuisé ses trente minutes.` });
+    finishRound({ type: "win", winner: 1 - state.currentPlayer, reason: `${playerName(state.currentPlayer)} a épuisé ses trente minutes.` });
   }
 }
 
@@ -58,6 +58,7 @@ function finishRound(result) {
   if (!state.roundActive) return;
   state.roundActive = false;
   stopTimer();
+  cancelCpuTurn();
 
   if (result.type === "win") state.scores[result.winner] += 1;
   renderHeader();
@@ -68,15 +69,15 @@ function finishRound(result) {
   if (result.type === "draw") {
     els.resultTitle.textContent = "Manche nulle";
   } else if (matchWinner >= 0) {
-    els.resultTitle.textContent = `Joueur ${matchWinner + 1} remporte la partie !`;
+    els.resultTitle.textContent = `${playerName(matchWinner)} remporte la partie !`;
   } else {
-    els.resultTitle.textContent = `Joueur ${result.winner + 1} remporte la manche !`;
+    els.resultTitle.textContent = `${playerName(result.winner)} remporte la manche !`;
   }
 
   els.resultText.textContent = result.reason;
   els.revealedColors.innerHTML = [0, 1].map(player => {
     const color = state.secretColors[player];
-    return `<div class="color-chip"><span>Joueur ${player + 1}</span><span class="color-name ${COLORS[color].css}">${COLORS[color].label}</span></div>`;
+    return `<div class="color-chip"><span>${playerName(player)}</span><span class="color-name ${COLORS[color].css}">${COLORS[color].label}</span></div>`;
   }).join("");
 
   els.nextRoundBtn.textContent = matchWinner >= 0 ? "Rejouer" : "Manche suivante";
@@ -86,8 +87,13 @@ function finishRound(result) {
 
 function handleNextRound() {
   if (els.nextRoundBtn.dataset.matchOver === "true") {
-    const settings = { seriesLength: state.seriesLength, timersEnabled: state.timersEnabled };
+    const settings = {
+      mode: state.mode,
+      seriesLength: state.seriesLength,
+      timersEnabled: state.timersEnabled
+    };
     state = initialState();
+    state.mode = settings.mode;
     state.seriesLength = settings.seriesLength;
     state.targetWins = Math.ceil(settings.seriesLength / 2);
     state.timersEnabled = settings.timersEnabled;
@@ -100,11 +106,13 @@ function handleNextRound() {
 
 function returnToMenu() {
   stopTimer();
+  cancelCpuTurn();
   state.roundActive = false;
   els.privacyOverlay.classList.add("hidden");
   els.resultOverlay.classList.add("hidden");
   els.rulesOverlay.classList.add("hidden");
   els.gameScreen.classList.add("hidden");
+  els.gameScreen.classList.remove("cpu-turn");
   els.menuScreen.classList.remove("hidden");
 }
 
