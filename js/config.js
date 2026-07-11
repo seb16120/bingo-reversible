@@ -96,7 +96,14 @@ const initialState = () => ({
   timerId: null,
   winningLine: null,
   cpuThinking: false,
-  cpuTimerId: null
+  cpuTimerId: null,
+  strongBeliefs: {},
+  strongBeliefHistory: [],
+  strongWorker: null,
+  strongHardTimerId: null,
+  strongSearchId: 0,
+  strongBestMove: null,
+  strongSearchStats: null
 });
 
 let state = initialState();
@@ -105,12 +112,19 @@ function freshReserve() {
   return { rb: 3, yr: 3, by: 3 };
 }
 
+function isCpuMode() {
+  return state.mode === "cpu" || state.mode === "strong";
+}
+
 function playerName(player) {
-  return state.mode === "cpu" && player === 1 ? "CPU" : `Joueur ${player + 1}`;
+  if (player !== 1) return `Joueur ${player + 1}`;
+  if (state.mode === "strong") return "Strong CPU";
+  if (state.mode === "cpu") return "CPU";
+  return "Joueur 2";
 }
 
 function isCpuPlayer(player = state.currentPlayer) {
-  return state.mode === "cpu" && player === 1;
+  return isCpuMode() && player === 1;
 }
 
 function isHumanTurn() {
