@@ -1,0 +1,44 @@
+/* Mode local / CPU et repères de joueurs. */
+
+.segmented-control.mode-control {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.player-dot.p1 {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, .35);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .28);
+}
+
+.player-dot.p2 {
+  background: #050609;
+  border: 1px solid rgba(255, 255, 255, .72);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45);
+}
+
+.game-screen.cpu-turn .control-panel {
+  opacity: .72;
+}
+
+.game-screen.cpu-turn .board-cell,
+.game-screen.cpu-turn .reserve-item,
+.game-screen.cpu-turn .action-button {
+  cursor: wait;
+}
+
+.cpu-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cpu-label::after {
+  content: "CPU";
+  padding: 2px 7px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
