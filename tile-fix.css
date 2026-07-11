@@ -1,6 +1,4 @@
-/* Correctif d’affichage des tuiles sur le plateau.
-   Les tuiles étaient des <span> en ligne : leur largeur et leur hauteur
-   n’étaient donc pas appliquées, ce qui les réduisait à un petit rectangle. */
+/* Correctif d’affichage des tuiles sur le plateau. */
 
 .board-cell {
   padding: 0;
@@ -24,33 +22,36 @@
   pointer-events: none;
 }
 
-/* La pastille de propriétaire n’apparaît que sur la tuile du dernier coup,
-   qui est également la tuile protégée pendant le tour adverse. */
-.board-cell .tile-owner {
-  display: none;
-}
-
-.board-cell.protected .tile-owner {
+/* Pastille du joueur ayant effectué le dernier coup.
+   Elle est dessinée sur la case protégée, indépendamment du contenu de la tuile. */
+.board-cell.protected::before {
+  content: "";
   position: absolute;
   z-index: 4;
-  left: clamp(5px, .7vw, 9px);
-  bottom: clamp(5px, .7vw, 9px);
+  left: clamp(6px, .8vw, 10px);
+  bottom: clamp(6px, .8vw, 10px);
   display: block;
-  width: clamp(12px, 1.45vw, 18px);
-  height: clamp(12px, 1.45vw, 18px);
+  width: clamp(13px, 1.5vw, 19px);
+  height: clamp(13px, 1.5vw, 19px);
   border-radius: 50%;
+  pointer-events: none;
 }
 
-.board-cell.protected .tile-owner.owner-0 {
+.board-cell.protected.last-owner-0::before {
   background: #ffffff;
   border: 2px solid #111318;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, .55);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, .65);
 }
 
-.board-cell.protected .tile-owner.owner-1 {
+.board-cell.protected.last-owner-1::before {
   background: #050609;
   border: 2px solid #ffffff;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, .6);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, .7);
+}
+
+/* L’ancien élément de propriétaire n’est plus utilisé. */
+.board-cell .tile-owner {
+  display: none !important;
 }
 
 @media (max-width: 640px) {
@@ -59,7 +60,7 @@
     border-width: 7px;
   }
 
-  .board-cell.protected .tile-owner {
+  .board-cell.protected::before {
     left: 4px;
     bottom: 4px;
     width: 13px;
