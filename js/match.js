@@ -2,7 +2,10 @@ function startMatch(event) {
   event.preventDefault();
   const form = new FormData(els.setupForm);
   const seriesLength = Number(form.get("series"));
+  const mode = form.get("mode") === "cpu" ? "cpu" : "local";
+
   state = initialState();
+  state.mode = mode;
   state.seriesLength = seriesLength;
   state.targetWins = Math.ceil(seriesLength / 2);
   state.timersEnabled = els.timersEnabled.checked;
@@ -15,6 +18,7 @@ function startMatch(event) {
 
 function startRound(firstRound = false) {
   stopTimer();
+  cancelCpuTurn();
   state.roundNumber += 1;
   if (!firstRound) state.roundStarter = 1 - state.roundStarter;
   state.currentPlayer = state.roundStarter;
@@ -35,6 +39,7 @@ function startRound(firstRound = false) {
   state.turnTime = 60;
   state.lastTimerTick = null;
   state.winningLine = null;
+  state.cpuThinking = false;
 
   els.resultOverlay.classList.add("hidden");
   renderAll();
@@ -55,20 +60,29 @@ function renderPrivacy() {
   const player = state.revealPlayer;
   const revealed = state.revealStage === "revealed";
   els.privacyStep.textContent = `Manche ${state.roundNumber} · Couleur secrète`;
-  els.privacyTitle.textContent = `Joueur ${player + 1}, regarde seul l’écran`;
+  els.privacyTitle.textContent = `${playerName(player)}, regarde seul l’écran`;
   els.secretColorCard.className = "secret-card";
 
   if (!revealed) {
-    els.privacyInstruction.textContent = "Quand l’autre joueur ne regarde plus, révèle ta couleur.";
+    els.privacyInstruction.textContent = state.mode === "cpu"
+      ? "Révèle ta couleur. Celle du CPU restera secrète jusqu’à la fin de la manche."
+      : "Quand l’autre joueur ne regarde plus, révèle ta couleur.";
     els.secretColorCard.classList.add("concealed");
     els.secretColorName.textContent = "?";
     els.privacyButton.textContent = "Révéler ma couleur";
   } else {
     const color = state.secretColors[player];
-    els.privacyInstruction.textContent = "Mémorise-la, puis masque-la avant de passer l’appareil.";
+    els.privacyInstruction.textContent = state.mode === "cpu"
+      ? "Mémorise-la, puis masque-la pour commencer."
+      : "Mémorise-la, puis masque-la avant de passer l’appareil.";
     els.secretColorCard.classList.add(COLORS[color].css);
     els.secretColorName.textContent = COLORS[color].label;
-    els.privacyButton.textContent = player === 0 ? "Masquer et passer au joueur 2" : "Masquer et commencer";
+
+    if (state.mode === "cpu") {
+      els.privacyButton.textContent = "Masquer et commencer";
+    } else {
+      els.privacyButton.textContent = player === 0 ? "Masquer et passer au joueur 2" : "Masquer et commencer";
+    }
   }
 }
 
@@ -79,6 +93,11 @@ function handlePrivacyButton() {
     return;
   }
 
+  if (state.mode === "cpu") {
+    activateRound();
+    return;
+  }
+
   if (state.revealPlayer === 0) {
     state.revealPlayer = 1;
     state.revealStage = "concealed";
@@ -86,11 +105,16 @@ function handlePrivacyButton() {
     return;
   }
 
+  activateRound();
+}
+
+function activateRound() {
   els.privacyOverlay.classList.add("hidden");
   state.roundActive = true;
   registerPosition();
   startTimer();
   renderAll();
+  scheduleCpuTurn();
 }
 
 function renderAll() {
@@ -107,10 +131,21 @@ function renderHeader() {
   els.moveLabel.textContent = `Coup ${Math.min(state.moveNumber + 1, 50)} / 50`;
   els.scoreP1.textContent = state.scores[0];
   els.scoreP2.textContent = state.scores[1];
-  els.turnText.textContent = `Tour du joueur ${state.currentPlayer + 1}`;
+  els.player1Name.textContent = playerName(0);
+  els.player2Name.textContent = playerName(1);
+
+  els.turnText.textContent = isCpuPlayer()
+    ? "Tour du CPU"
+    : `Tour du joueur ${state.currentPlayer + 1}`;
+
   els.player1Card.classList.toggle("active", state.currentPlayer === 0 && state.roundActive);
   els.player2Card.classList.toggle("active", state.currentPlayer === 1 && state.roundActive);
+  els.gameScreen.classList.toggle("cpu-turn", isCpuPlayer() && state.roundActive);
 
   const special = emptyCells().length <= 2;
-  els.phaseText.textContent = special ? "Pose, retournement ou déplacement" : "Pose obligatoire";
+  els.phaseText.textContent = state.cpuThinking
+    ? "Le CPU réfléchit…"
+    : special
+      ? "Pose, retournement ou déplacement"
+      : "Pose obligatoire";
 }
