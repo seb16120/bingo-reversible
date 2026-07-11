@@ -1,0 +1,108 @@
+/* Menu 4 × 4, duel de CPU et symboles du dernier coup sans disque. */
+
+.hero-board {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4.5%;
+  padding: 6.5%;
+}
+
+.hero-board .mini-tile {
+  border-width: clamp(4px, .55vw, 8px);
+}
+
+.segmented-control.mode-control {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cpu-duel-options {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, .12);
+}
+
+.cpu-duel-options.hidden {
+  display: none;
+}
+
+.cpu-level-row {
+  display: grid;
+  grid-template-columns: minmax(105px, .75fr) 1.6fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.cpu-level-row > span {
+  color: var(--muted);
+  font-size: .86rem;
+  font-weight: 800;
+}
+
+.cpu-level-row .segmented-control {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Le symbole central n'a plus de cercle ou de fond. */
+.current-move-marker,
+.current-move-marker.player-0,
+.current-move-marker.player-1 {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.current-move-marker.player-0 {
+  color: #ffffff;
+  text-shadow: 0 1px 3px #000000, 0 0 3px #000000;
+}
+
+.current-move-marker.player-1 {
+  color: #050609;
+  text-shadow: 0 0 2px #ffffff, 0 1px 3px rgba(255, 255, 255, .95);
+}
+
+.current-move-marker > span {
+  display: block;
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  font-weight: 1000;
+  line-height: 1;
+}
+
+.current-move-marker.action-place > span {
+  font-size: clamp(1.55rem, 2.8vw, 2.25rem);
+  transform: none;
+}
+
+.current-move-marker small {
+  right: -12px;
+  bottom: -9px;
+}
+
+@media (max-width: 820px) {
+  .segmented-control.mode-control {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .cpu-level-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .current-move-marker > span {
+    font-size: 1.35rem;
+  }
+
+  .current-move-marker.action-place > span {
+    font-size: 1.55rem;
+  }
+}
