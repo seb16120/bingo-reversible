@@ -37,6 +37,8 @@ const els = {
   moveLabel: document.querySelector("#moveLabel"),
   scoreP1: document.querySelector("#scoreP1"),
   scoreP2: document.querySelector("#scoreP2"),
+  player1Name: document.querySelector("#player1Name"),
+  player2Name: document.querySelector("#player2Name"),
   player1Card: document.querySelector("#player1Card"),
   player2Card: document.querySelector("#player2Card"),
   clockP1Wrap: document.querySelector("#clockP1Wrap"),
@@ -66,6 +68,7 @@ const els = {
 };
 
 const initialState = () => ({
+  mode: "local",
   seriesLength: 3,
   targetWins: 2,
   timersEnabled: false,
@@ -90,11 +93,25 @@ const initialState = () => ({
   turnTime: 60,
   lastTimerTick: null,
   timerId: null,
-  winningLine: null
+  winningLine: null,
+  cpuThinking: false,
+  cpuTimerId: null
 });
 
 let state = initialState();
 
 function freshReserve() {
   return { rb: 3, yr: 3, by: 3 };
+}
+
+function playerName(player) {
+  return state.mode === "cpu" && player === 1 ? "CPU" : `Joueur ${player + 1}`;
+}
+
+function isCpuPlayer(player = state.currentPlayer) {
+  return state.mode === "cpu" && player === 1;
+}
+
+function isHumanTurn() {
+  return state.roundActive && !isCpuPlayer() && !state.cpuThinking;
 }
