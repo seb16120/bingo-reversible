@@ -101,7 +101,7 @@ self.onmessage = event => {
     v4AllowedRootMoves = defensiveRootKeys(payload, root, requested, allMoves);
 
     const forced = immediateForcedDefenseResult(allMoves, v4AllowedRootMoves, startedAt);
-    if (forced && allMoves.length > 1) {
+    if (forced) {
       self.postMessage({ type: "result", ...forced });
       return;
     }
