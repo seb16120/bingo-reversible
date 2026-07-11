@@ -66,20 +66,20 @@
 
           <fieldset id="cpuDuelOptions" class="cpu-duel-options hidden">
             <legend>Niveaux des CPU</legend>
-            <label class="cpu-level-row">
+            <div class="cpu-level-row">
               <span>CPU joueur 1</span>
-              <span class="segmented-control">
+              <div class="segmented-control" role="radiogroup" aria-label="Niveau du CPU joueur 1">
                 <label><input type="radio" name="cpu1Level" value="basic" checked><span>Basique</span></label>
                 <label><input type="radio" name="cpu1Level" value="probabilistic"><span>Probabiliste</span></label>
-              </span>
-            </label>
-            <label class="cpu-level-row">
+              </div>
+            </div>
+            <div class="cpu-level-row">
               <span>CPU joueur 2</span>
-              <span class="segmented-control">
+              <div class="segmented-control" role="radiogroup" aria-label="Niveau du CPU joueur 2">
                 <label><input type="radio" name="cpu2Level" value="basic" checked><span>Basique</span></label>
                 <label><input type="radio" name="cpu2Level" value="probabilistic"><span>Probabiliste</span></label>
-              </span>
-            </label>
+              </div>
+            </div>
           </fieldset>
 
           <fieldset>
