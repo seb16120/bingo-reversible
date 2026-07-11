@@ -4,6 +4,11 @@ const CPU_DELAY_MS = 650;
 function scheduleCpuTurn() {
   if (!state.roundActive || !isCpuPlayer() || state.cpuTimerId !== null) return;
 
+  if (state.mode === "strong") {
+    scheduleStrongCpuTurn();
+    return;
+  }
+
   state.cpuThinking = true;
   renderAll();
   state.cpuTimerId = window.setTimeout(() => {
@@ -29,6 +34,7 @@ function scheduleCpuTurn() {
 function cancelCpuTurn() {
   if (state.cpuTimerId !== null) window.clearTimeout(state.cpuTimerId);
   state.cpuTimerId = null;
+  if (typeof cancelStrongCpuTurn === "function") cancelStrongCpuTurn();
   state.cpuThinking = false;
 }
 
