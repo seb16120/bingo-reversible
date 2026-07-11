@@ -3,14 +3,15 @@
 /*
  * Le moteur probabiliste conserve l'alpha-bêta, le filtre tactique et le
  * Monte-Carlo du moteur v3. Cette couche limite les coups racine aux choix
- * validés par la défense basique. Si aucune défense parfaite n'existe, elle
- * conserve uniquement les coups donnant le moins de victoires immédiates à
- * l'adversaire, au lieu de rendre toute la liberté à la recherche avancée.
+ * validés par la défense basique. Si une seule défense subsiste, elle est
+ * jouée immédiatement. Avec deux ou trois défenses évidentes, la recherche
+ * est volontairement raccourcie au lieu d'épuiser les 56 secondes.
  */
 importScripts("strong-cpu-worker-v3.js?v=1");
 
 const v4BaseGenerateLegalMoves = generateLegalMoves;
 const v4BaseSearchBestMove = searchBestMoveV3;
+const V4_SHORT_DEFENSE_BUDGET_MS = 8_000;
 let v4RootKey = null;
 let v4AllowedRootMoves = null;
 
@@ -43,8 +44,8 @@ function rootMoveDanger(root, move, humanColors, cpuColor) {
   return danger;
 }
 
-function defensiveRootKeys(payload, root, requestedKeys) {
-  let moves = v4BaseGenerateLegalMoves(root);
+function defensiveRootKeys(payload, root, requestedKeys, allMoves) {
+  let moves = allMoves;
   if (requestedKeys?.size) {
     const requested = moves.filter(move => requestedKeys.has(moveKey(move)));
     if (requested.length) moves = requested;
@@ -61,10 +62,27 @@ function defensiveRootKeys(payload, root, requestedKeys) {
   return new Set(scored.filter(entry => entry.danger === minimum).map(entry => moveKey(entry.move)));
 }
 
+function immediateForcedDefenseResult(allMoves, allowedKeys, startedAt) {
+  if (!allowedKeys || allowedKeys.size !== 1) return null;
+  const onlyKey = [...allowedKeys][0];
+  const move = allMoves.find(candidate => moveKey(candidate) === onlyKey);
+  if (!move) return null;
+  return {
+    move,
+    score: 0,
+    depth: 0,
+    nodes: 0,
+    phase: "défense-forcée",
+    simulations: 0,
+    elapsedMs: performance.now() - startedAt
+  };
+}
+
 self.onmessage = event => {
   const message = event.data;
   if (!message || message.type !== "search") return;
 
+  const startedAt = performance.now();
   try {
     const payload = message.payload || {};
     const root = {
@@ -76,13 +94,30 @@ self.onmessage = event => {
     };
 
     v4RootKey = rawPositionKey(root);
+    const allMoves = v4BaseGenerateLegalMoves(root);
     const requested = Array.isArray(payload.allowedRootMoveKeys) && payload.allowedRootMoveKeys.length
       ? new Set(payload.allowedRootMoveKeys)
       : null;
-    v4AllowedRootMoves = defensiveRootKeys(payload, root, requested);
+    v4AllowedRootMoves = defensiveRootKeys(payload, root, requested, allMoves);
 
-    const result = v4BaseSearchBestMove(payload);
-    self.postMessage({ type: "result", ...result });
+    const forced = immediateForcedDefenseResult(allMoves, v4AllowedRootMoves, startedAt);
+    if (forced && allMoves.length > 1) {
+      self.postMessage({ type: "result", ...forced });
+      return;
+    }
+
+    const defenseConstrained = Boolean(v4AllowedRootMoves && v4AllowedRootMoves.size < allMoves.length);
+    const shortDefense = defenseConstrained && v4AllowedRootMoves.size <= 3;
+    const searchPayload = shortDefense
+      ? { ...payload, budgetMs: Math.min(Number(payload.budgetMs) || 56_000, V4_SHORT_DEFENSE_BUDGET_MS) }
+      : payload;
+
+    const result = v4BaseSearchBestMove(searchPayload);
+    self.postMessage({
+      type: "result",
+      ...result,
+      phase: shortDefense ? `${result.phase || "alpha-beta"}+défense-courte` : result.phase
+    });
   } catch (error) {
     self.postMessage({
       type: "error",
