@@ -4,16 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#171a24">
-  <meta name="description" content="Bingo réversible, jeu local à deux joueurs sur un plateau 4 × 4.">
+  <meta name="description" content="Bingo réversible, jeu de stratégie sur un plateau 4 × 4, en local ou contre le CPU.">
   <title>Bingo réversible</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="tile-fix.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="tile-fix.css?v=3">
+  <link rel="stylesheet" href="mode-cpu.css?v=1">
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Jeu local à 2 joueurs</p>
+        <p class="eyebrow">Local à deux ou contre CPU</p>
         <h1>Bingo réversible</h1>
       </div>
       <button id="rulesBtn" class="icon-button" type="button" aria-label="Afficher les règles" title="Règles">?</button>
@@ -42,6 +43,14 @@
 
         <form id="setupForm" class="setup-card">
           <fieldset>
+            <legend>Mode de jeu</legend>
+            <div class="segmented-control mode-control" role="radiogroup" aria-label="Mode de jeu">
+              <label><input type="radio" name="mode" value="local" checked><span>2 joueurs</span></label>
+              <label><input type="radio" name="mode" value="cpu"><span>Vs. CPU</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
             <legend>Format</legend>
             <div class="segmented-control" role="radiogroup" aria-label="Format de la partie">
               <label><input type="radio" name="series" value="1"><span>1 manche</span></label>
@@ -66,7 +75,7 @@
       <section id="gameScreen" class="screen game-screen hidden" aria-live="polite">
         <div class="match-header">
           <div class="score-card player-card" id="player1Card">
-            <div class="player-title"><span class="player-dot p1"></span><strong>Joueur 1</strong></div>
+            <div class="player-title"><span class="player-dot p1"></span><strong id="player1Name">Joueur 1</strong></div>
             <div class="player-stats">
               <span>Manches <b id="scoreP1">0</b></span>
               <span id="clockP1Wrap" class="clock hidden">⏱ <b id="clockP1">30:00</b></span>
@@ -80,7 +89,7 @@
           </div>
 
           <div class="score-card player-card" id="player2Card">
-            <div class="player-title"><span class="player-dot p2"></span><strong>Joueur 2</strong></div>
+            <div class="player-title"><span class="player-dot p2"></span><strong id="player2Name">Joueur 2</strong></div>
             <div class="player-stats">
               <span>Manches <b id="scoreP2">0</b></span>
               <span id="clockP2Wrap" class="clock hidden">⏱ <b id="clockP2">30:00</b></span>
@@ -182,16 +191,20 @@
         <h3>Protection</h3>
         <p>La tuile utilisée au coup précédent ne peut être ni retournée ni déplacée par l’adversaire. Elle redevient disponible au tour suivant.</p>
 
+        <h3>Mode Vs. CPU</h3>
+        <p>Vous êtes le joueur 1. Le CPU connaît uniquement sa propre couleur secrète. Il recherche les gains immédiats, bloque les menaces visibles et favorise les alignements prometteurs, sans calcul exhaustif.</p>
+
         <h3>Fin de manche</h3>
         <p>Une manche est nulle après trois répétitions de la même position complète ou si personne ne gagne au 50e coup. Avec les chronomètres activés, dépasser une minute pour un coup ou épuiser ses trente minutes fait perdre la manche.</p>
       </div>
     </div>
   </div>
 
-  <script src="js/config.js"></script>
-  <script src="js/match.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/rules.js"></script>
-  <script src="js/timer-result.js"></script>
+  <script src="js/config.js?v=2"></script>
+  <script src="js/match.js?v=2"></script>
+  <script src="js/ui.js?v=2"></script>
+  <script src="js/rules.js?v=2"></script>
+  <script src="js/cpu.js?v=1"></script>
+  <script src="js/timer-result.js?v=2"></script>
 </body>
 </html>
