@@ -1,0 +1,150 @@
+/* Sélecteur FR / EN et rappel express avant la partie. */
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.language-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(42px, 1fr));
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 999px;
+  background: rgba(26, 32, 46, .9);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .16);
+}
+
+.language-switch button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .05em;
+  cursor: pointer;
+}
+
+.language-switch button:hover {
+  color: var(--text);
+}
+
+.language-switch button.active {
+  color: #0d1715;
+  background: var(--accent);
+  box-shadow: 0 4px 12px rgba(121, 226, 180, .18);
+}
+
+.quick-rules-modal {
+  width: min(590px, calc(100vw - 28px));
+  display: grid;
+  gap: 18px;
+}
+
+.quick-rules-modal h2 {
+  margin: 0;
+  font-size: clamp(1.55rem, 4vw, 2.2rem);
+  line-height: 1.1;
+}
+
+.quick-rules-steps {
+  display: grid;
+  gap: 12px;
+}
+
+.quick-rules-steps article {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 13px;
+  align-items: start;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.quick-rules-steps article.special-step {
+  border-color: rgba(121, 226, 180, .35);
+  background: rgba(121, 226, 180, .08);
+}
+
+.quick-step-number {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: #0c1714;
+  background: var(--accent);
+  font-weight: 1000;
+}
+
+.quick-rules-steps strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.quick-rules-steps p,
+.quick-rules-note,
+.quick-rules-warning {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.quick-rules-warning {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 205, 92, .3);
+  border-radius: 12px;
+  color: #ffe6a5;
+  background: rgba(255, 205, 92, .08);
+  font-weight: 850;
+  text-align: center;
+}
+
+.quick-rules-note {
+  font-size: .88rem;
+}
+
+.quick-rules-modal .primary-button {
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .topbar-actions {
+    gap: 7px;
+  }
+
+  .language-switch {
+    grid-template-columns: repeat(2, 36px);
+    padding: 3px;
+  }
+
+  .language-switch button {
+    min-height: 32px;
+    padding: 0 6px;
+    font-size: .68rem;
+  }
+
+  .quick-rules-steps article {
+    grid-template-columns: 34px minmax(0, 1fr);
+    padding: 13px;
+  }
+
+  .quick-step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+}
