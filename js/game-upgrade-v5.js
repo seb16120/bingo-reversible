@@ -245,3 +245,18 @@
   window.addEventListener("beforeunload", clearAutoAdvanceCountdown);
   renderMoveLog();
 })();
+
+/* Charge les améliorations v6 sans modifier la branche online en cours. */
+(() => {
+  if (!document.querySelector("link[href*='game-upgrade-v6.css']")) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "game-upgrade-v6.css?v=1";
+    document.head.appendChild(link);
+  }
+  if (!document.querySelector("script[src*='game-upgrade-v6.js']")) {
+    const script = document.createElement("script");
+    script.src = "js/game-upgrade-v6.js?v=1";
+    document.body.appendChild(script);
+  }
+})();
