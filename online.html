@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#171a24">
+  <meta name="description" content="Créez ou rejoignez un salon privé de Bingo réversible Online.">
+  <title>Bingo réversible : Online</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="tile-fix.css?v=5">
+  <link rel="stylesheet" href="online.css?v=1">
+</head>
+<body class="online-page">
+  <main class="online-shell">
+    <header class="online-topbar">
+      <div class="online-brand">
+        <img src="favicon.svg" alt="">
+        <div>
+          <p>Salon privé à deux joueurs</p>
+          <h1>Bingo réversible : Online</h1>
+        </div>
+      </div>
+      <a class="secondary-button" href="index.html">Version locale</a>
+    </header>
+
+    <div class="online-grid">
+      <section class="online-card online-actions" aria-labelledby="onlineTitle">
+        <div>
+          <p class="eyebrow">Première fondation</p>
+          <h2 id="onlineTitle">Créer ou rejoindre une partie</h2>
+          <p>Le créateur devient toujours le joueur 1 avec la pastille blanche. La personne invitée devient le joueur 2 avec la pastille noire.</p>
+        </div>
+
+        <form id="createRoomForm" class="online-form">
+          <h3>Créer un salon</h3>
+          <div class="online-form-row">
+            <label class="online-field">
+              <span>Format</span>
+              <select id="createSeriesLength">
+                <option value="1">1 manche</option>
+                <option value="3" selected>BO3</option>
+                <option value="5">BO5</option>
+              </select>
+            </label>
+            <label class="online-field">
+              <span>Délai de reconnexion</span>
+              <select disabled>
+                <option>45 secondes</option>
+              </select>
+            </label>
+          </div>
+          <label class="online-toggle"><input id="createTimersEnabled" type="checkbox"> Partie chronométrée</label>
+          <label class="online-toggle"><input id="createDebugEnabled" type="checkbox"> Mode débogage</label>
+          <button class="primary-button" type="submit">Créer le salon</button>
+        </form>
+
+        <div class="online-separator">ou</div>
+
+        <form id="joinRoomForm" class="online-form">
+          <h3>Rejoindre un salon</h3>
+          <label class="online-field">
+            <span>Code d’invitation</span>
+            <input id="joinRoomCode" class="room-code-input" maxlength="6" autocomplete="off" placeholder="ABC123" required>
+          </label>
+          <button class="primary-button" type="submit">Rejoindre</button>
+        </form>
+
+        <p id="onlineMessage" class="online-message" aria-live="polite"></p>
+      </section>
+
+      <aside class="online-card online-status-card" aria-labelledby="connectionTitle">
+        <div id="connectionBadge" class="connection-badge">Configuration requise</div>
+        <div>
+          <h2 id="connectionTitle">État du service</h2>
+          <p id="connectionDetail" class="online-status-detail">La structure est prête. Ajoutez la Project URL et la clé publishable de Supabase dans <code>js/online-config.js</code>.</p>
+        </div>
+
+        <section id="roomPanel" class="room-panel online-hidden" aria-labelledby="roomTitle">
+          <div>
+            <p class="eyebrow">Salon actif</p>
+            <h3 id="roomTitle">Code à partager</h3>
+          </div>
+          <div id="roomCodeDisplay" class="room-code-display">------</div>
+          <button id="copyInviteButton" class="secondary-button" type="button">Copier le lien d’invitation</button>
+          <div id="roomMembers" class="room-members"></div>
+          <button id="readyButton" class="primary-button" type="button">Je suis prêt</button>
+          <p class="online-help">Le lancement de la partie synchronisée sera branché après validation du lobby et du schéma Supabase.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/online-config.js?v=1"></script>
+  <script src="js/online-app.js?v=1"></script>
+</body>
+</html>
