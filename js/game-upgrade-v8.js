@@ -5,11 +5,23 @@
  * - ajoute une croix à l'écran de fin de manche / partie ;
  * - permet de masquer l'écran pour analyser le plateau ;
  * - ajoute dans le panneau latéral un bouton grisé pendant la partie,
- *   puis activé pour rouvrir le dernier résultat.
+ *   puis activé pour rouvrir le dernier résultat ;
+ * - active le favicon du jeu.
  */
 (() => {
   let resultAvailable = false;
   let resultIsMatch = false;
+
+  function installFaviconV8() {
+    let link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
+    }
+    link.type = "image/svg+xml";
+    link.href = "favicon.svg?v=1";
+  }
 
   function isEnglishV8() {
     return document.documentElement.lang === "en";
@@ -128,6 +140,7 @@
       : "Faire réapparaître l’écran de résultat";
   }
 
+  installFaviconV8();
   installResultRecallUiV8();
 
   const baseFinishRoundV8 = finishRound;
