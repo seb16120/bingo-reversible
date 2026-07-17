@@ -1,8 +1,10 @@
-name: Déployer sur GitHub Pages
+name: Déployer Local et Online sur GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+      - bingo-reversible-online
   workflow_dispatch:
 
 permissions:
@@ -20,17 +22,51 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
     steps:
-      - name: Récupérer le dépôt
+      - name: Récupérer la version locale
         uses: actions/checkout@v4
+        with:
+          ref: main
+          path: local-source
+
+      - name: Récupérer la version online
+        uses: actions/checkout@v4
+        with:
+          ref: bingo-reversible-online
+          path: online-source
+
+      - name: Assembler le site publié
+        shell: bash
+        run: |
+          mkdir -p public/online
+
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            local-source/ public/
+
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            online-source/ public/online/
+
+          if [ ! -f public/online/online.html ]; then
+            echo "Le fichier online.html est absent de la branche bingo-reversible-online." >&2
+            exit 1
+          fi
+
+          cp public/online/online.html public/online/index.html
+          touch public/.nojekyll
+
       - name: Configurer GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - name: Préparer les fichiers
+
+      - name: Envoyer les fichiers à GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: public
+
       - name: Déployer
         id: deployment
         uses: actions/deploy-pages@v4
