@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="game-upgrade-v3.css?v=1">
   <link rel="stylesheet" href="game-upgrade-v4.css?v=1">
   <link rel="stylesheet" href="game-upgrade-v5.css?v=1">
+  <link rel="stylesheet" href="online-entry.css?v=1">
 </head>
 <body>
   <div class="app-shell">
@@ -28,6 +29,13 @@
     <main>
       <section id="menuScreen" class="screen menu-screen" aria-labelledby="menuTitle">
         <div class="hero-card">
+          <a id="onlineVersionButton" class="online-entry-button" href="online/">
+            <span>
+              <small id="onlineVersionKicker">Mode multijoueur à distance</small>
+              <strong id="onlineVersionLabel">Jouer en ligne</strong>
+            </span>
+            <span class="online-entry-arrow" aria-hidden="true">→</span>
+          </a>
           <div class="hero-board" aria-hidden="true">
             <div class="mini-tile tile-rb" data-face="0"></div>
             <div class="mini-tile tile-yr" data-face="0"></div>
@@ -46,7 +54,7 @@
             <div class="mini-tile tile-yr" data-face="0"></div>
             <div class="mini-tile tile-rb" data-face="1"></div>
           </div>
-          <div>
+          <div class="hero-copy">
             <p class="eyebrow">Retournez. Déplacez. Alignez.</p>
             <h2 id="menuTitle">Préparer la partie</h2>
             <p>Chaque joueur reçoit une couleur secrète. Le premier à en aligner quatre gagne la manche.</p>
@@ -270,5 +278,6 @@
   </script>
   <script src="js/game-upgrade-v7.js?v=1"></script>
   <script src="js/game-upgrade-v8.js?v=1"></script>
+  <script src="js/online-entry.js?v=1"></script>
 </body>
 </html>

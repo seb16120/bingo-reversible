@@ -1,0 +1,102 @@
+/* Accès direct à la version Online depuis la carte d’accueil locale. */
+
+.hero-card {
+  grid-template-areas:
+    "online online"
+    "board copy";
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.hero-card > .hero-board {
+  grid-area: board;
+}
+
+.hero-card > .hero-copy {
+  grid-area: copy;
+}
+
+.online-entry-button {
+  grid-area: online;
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px clamp(20px, 4vw, 34px);
+  border: 1px solid rgba(121, 226, 180, .38);
+  border-radius: 18px;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 0, rgba(121, 226, 180, .18), transparent 52%),
+    linear-gradient(135deg, rgba(121, 226, 180, .12), rgba(57, 119, 199, .13));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035);
+  text-decoration: none;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.online-entry-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(121, 226, 180, .72);
+  background:
+    radial-gradient(circle at 12% 0, rgba(121, 226, 180, .25), transparent 52%),
+    linear-gradient(135deg, rgba(121, 226, 180, .17), rgba(57, 119, 199, .18));
+}
+
+.online-entry-button:focus-visible {
+  outline: 3px solid rgba(121, 226, 180, .85);
+  outline-offset: 3px;
+}
+
+.online-entry-button small,
+.online-entry-button strong {
+  display: block;
+}
+
+.online-entry-button small {
+  margin-bottom: 5px;
+  color: var(--accent);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.online-entry-button strong {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  line-height: 1.05;
+}
+
+.online-entry-arrow {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #102218;
+  background: var(--accent);
+  font-size: 1.65rem;
+  font-weight: 950;
+  box-shadow: 0 8px 22px rgba(71, 201, 144, .24);
+}
+
+@media (max-width: 640px) {
+  .hero-card {
+    grid-template-areas:
+      "online"
+      "board"
+      "copy";
+    grid-template-rows: auto auto auto;
+  }
+
+  .online-entry-button {
+    min-height: 80px;
+    padding: 16px 18px;
+    border-radius: 15px;
+  }
+
+  .online-entry-arrow {
+    width: 42px;
+    height: 42px;
+  }
+}
