@@ -9,7 +9,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css?v=3">
   <link rel="stylesheet" href="tile-fix.css?v=5">
-  <link rel="stylesheet" href="online.css?v=1">
+  <link rel="stylesheet" href="online.css?v=2">
 </head>
 <body class="online-page">
   <main class="online-shell">
@@ -84,15 +84,48 @@
           <div id="roomCodeDisplay" class="room-code-display">------</div>
           <button id="copyInviteButton" class="secondary-button" type="button">Copier le lien d’invitation</button>
           <div id="roomMembers" class="room-members"></div>
+          <div id="roomCountdown" class="room-countdown online-hidden" role="status" aria-live="assertive">
+            <span>La partie commence dans</span>
+            <strong id="roomCountdownValue">5</strong>
+            <small>secondes</small>
+          </div>
           <button id="readyButton" class="primary-button" type="button">Je suis prêt</button>
-          <p class="online-help">Le lancement de la partie synchronisée sera branché après validation du lobby et du schéma Supabase.</p>
+          <p class="online-help">Le décompte démarre lorsque les deux joueurs sont prêts. Il s’annule si l’un d’eux change d’avis ou se déconnecte.</p>
         </section>
       </aside>
     </div>
+
+    <section id="onlineGameScreen" class="online-card online-game-screen online-hidden" aria-labelledby="onlineGameTitle">
+      <div class="online-game-heading">
+        <div>
+          <p class="eyebrow">Salon <span id="gameRoomCode">------</span></p>
+          <h2 id="onlineGameTitle">Partie lancée</h2>
+          <p id="gamePlayerSeat">Connexion au plateau en tant que joueur…</p>
+        </div>
+        <div class="connection-badge connected">Salon actif</div>
+      </div>
+
+      <div class="online-game-layout">
+        <div class="online-board-preview" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="online-game-summary">
+          <h3>Préparation du plateau synchronisé…</h3>
+          <p>Les deux joueurs ont rejoint l’écran de partie. La connexion au salon reste active.</p>
+          <dl>
+            <div><dt>Format</dt><dd id="gameSeriesLength">—</dd></div>
+            <div><dt>Chronomètres</dt><dd id="gameTimersEnabled">—</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/online-config.js?v=1"></script>
-  <script src="js/online-app.js?v=1"></script>
+  <script src="js/online-app.js?v=2"></script>
 </body>
 </html>

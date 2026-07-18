@@ -5,7 +5,10 @@
   const supabaseFactory = window.supabase;
   const RECONNECT_SECONDS = 45;
   const HEARTBEAT_MS = 15_000;
+  const COUNTDOWN_DURATION_MS = 5_000;
+  const COUNTDOWN_TICK_MS = 100;
   const STORAGE_KEY = "bingo-reversible-online-room";
+  const ROOM_COLUMNS = "id, code, status, series_length, timers_enabled, debug_enabled, countdown_started_at, started_at, created_at, updated_at";
 
   const ui = {
     createForm: document.querySelector("#createRoomForm"),
@@ -14,11 +17,19 @@
     message: document.querySelector("#onlineMessage"),
     connectionBadge: document.querySelector("#connectionBadge"),
     connectionDetail: document.querySelector("#connectionDetail"),
+    lobby: document.querySelector(".online-grid"),
     roomPanel: document.querySelector("#roomPanel"),
     roomCode: document.querySelector("#roomCodeDisplay"),
     roomMembers: document.querySelector("#roomMembers"),
+    countdown: document.querySelector("#roomCountdown"),
+    countdownValue: document.querySelector("#roomCountdownValue"),
     copyInvite: document.querySelector("#copyInviteButton"),
-    ready: document.querySelector("#readyButton")
+    ready: document.querySelector("#readyButton"),
+    gameScreen: document.querySelector("#onlineGameScreen"),
+    gameRoomCode: document.querySelector("#gameRoomCode"),
+    gamePlayerSeat: document.querySelector("#gamePlayerSeat"),
+    gameSeriesLength: document.querySelector("#gameSeriesLength"),
+    gameTimersEnabled: document.querySelector("#gameTimersEnabled")
   };
 
   let client = null;
@@ -27,6 +38,10 @@
   let currentSeat = null;
   let channel = null;
   let heartbeatId = null;
+  let countdownIntervalId = null;
+  let countdownStartedAt = null;
+  let startRequestKey = null;
+  let startStatusRefreshId = null;
 
   function configured() {
     return Boolean(
@@ -49,6 +64,126 @@
   function setConnection(text, state = "") {
     ui.connectionBadge.textContent = text;
     ui.connectionBadge.className = `connection-badge${state ? ` ${state}` : ""}`;
+  }
+
+  function clearCountdownTimers() {
+    if (countdownIntervalId !== null) window.clearInterval(countdownIntervalId);
+    if (startStatusRefreshId !== null) window.clearTimeout(startStatusRefreshId);
+    countdownIntervalId = null;
+    startStatusRefreshId = null;
+  }
+
+  function stopCountdown() {
+    clearCountdownTimers();
+    countdownStartedAt = null;
+    startRequestKey = null;
+    ui.countdown.classList.add("online-hidden");
+    ui.countdownValue.textContent = "5";
+  }
+
+  function enterGameScreen() {
+    if (!currentRoom) return;
+    stopCountdown();
+    ui.ready.disabled = true;
+    ui.lobby.classList.add("online-hidden");
+    ui.gameScreen.classList.remove("online-hidden");
+    ui.gameRoomCode.textContent = currentRoom.code;
+    ui.gamePlayerSeat.textContent = `Vous êtes le joueur ${currentSeat}.`;
+    ui.gameSeriesLength.textContent = Number(currentRoom.series_length) === 1
+      ? "1 manche"
+      : `BO${currentRoom.series_length}`;
+    ui.gameTimersEnabled.textContent = currentRoom.timers_enabled ? "Activés" : "Désactivés";
+    document.title = `Partie ${currentRoom.code} · Bingo réversible Online`;
+  }
+
+  async function refreshStatusAfterStart() {
+    startStatusRefreshId = null;
+    await refreshRoom();
+    syncRoomState();
+  }
+
+  async function requestRoomStart(startedAt) {
+    if (
+      !client
+      || !currentRoom
+      || currentRoom.status !== "ready"
+      || currentRoom.countdown_started_at !== startedAt
+      || startRequestKey === startedAt
+    ) return;
+
+    startRequestKey = startedAt;
+    const { error } = await client.rpc("start_online_room_after_countdown", {
+      p_room_id: currentRoom.id
+    });
+
+    if (error) {
+      console.warn("Démarrage du salon :", error.message);
+      startRequestKey = null;
+    }
+
+    if (startStatusRefreshId !== null) window.clearTimeout(startStatusRefreshId);
+    startStatusRefreshId = window.setTimeout(refreshStatusAfterStart, 500);
+  }
+
+  function updateCountdown() {
+    if (
+      !currentRoom
+      || currentRoom.status !== "ready"
+      || currentRoom.countdown_started_at !== countdownStartedAt
+    ) {
+      stopCountdown();
+      return;
+    }
+
+    const deadline = new Date(countdownStartedAt).getTime() + COUNTDOWN_DURATION_MS;
+    const remainingMs = deadline - Date.now();
+    ui.countdownValue.textContent = String(Math.max(0, Math.ceil(remainingMs / 1000)));
+
+    if (remainingMs <= 0) {
+      if (countdownIntervalId !== null) window.clearInterval(countdownIntervalId);
+      countdownIntervalId = null;
+      requestRoomStart(countdownStartedAt);
+    }
+  }
+
+  function startCountdown(startedAt) {
+    if (!startedAt || Number.isNaN(new Date(startedAt).getTime())) {
+      stopCountdown();
+      return;
+    }
+
+    if (countdownStartedAt !== startedAt) {
+      clearCountdownTimers();
+      countdownStartedAt = startedAt;
+      startRequestKey = null;
+      ui.countdown.classList.remove("online-hidden");
+      setMessage("Les deux joueurs sont prêts. La partie va commencer.", "success");
+    }
+
+    if (countdownIntervalId === null) {
+      countdownIntervalId = window.setInterval(updateCountdown, COUNTDOWN_TICK_MS);
+    }
+    updateCountdown();
+  }
+
+  function syncRoomState() {
+    if (!currentRoom) return;
+
+    if (currentRoom.status === "active") {
+      enterGameScreen();
+      return;
+    }
+
+    const countdownWasRunning = countdownStartedAt !== null;
+    if (currentRoom.status === "ready" && currentRoom.countdown_started_at) {
+      startCountdown(currentRoom.countdown_started_at);
+      return;
+    }
+
+    stopCountdown();
+    if (currentRoom.status === "waiting" && countdownWasRunning) {
+      setMessage("Le décompte est annulé. Les deux joueurs doivent être prêts.");
+    }
   }
 
   function normalizeCode(value) {
@@ -152,7 +287,7 @@
 
     const { data: room, error: roomError } = await client
       .from("online_rooms")
-      .select("id, code, status, series_length, timers_enabled, debug_enabled, created_at, updated_at")
+      .select(ROOM_COLUMNS)
       .eq("id", roomId)
       .single();
     if (roomError) throw roomError;
@@ -172,7 +307,7 @@
     if (!currentRoom) return;
     const { data, error } = await client
       .from("online_rooms")
-      .select("id, code, status, series_length, timers_enabled, debug_enabled, created_at, updated_at")
+      .select(ROOM_COLUMNS)
       .eq("id", currentRoom.id)
       .single();
     if (!error && data) currentRoom = data;
@@ -211,9 +346,7 @@
     ui.ready.textContent = own?.ready ? "Je ne suis plus prêt" : "Je suis prêt";
 
     await refreshRoom();
-    if (currentRoom?.status === "ready") {
-      setMessage("Les deux joueurs sont prêts. La synchronisation du plateau est la prochaine étape.", "success");
-    }
+    syncRoomState();
   }
 
   function subscribeRoom() {
@@ -234,7 +367,13 @@
       }, refreshMembers)
       .subscribe(status => {
         if (status === "SUBSCRIBED") setConnection("Connecté au salon", "connected");
-        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") setConnection("Connexion instable", "error");
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          setConnection("Connexion instable", "error");
+          if (countdownStartedAt !== null) {
+            stopCountdown();
+            setMessage("Le décompte est annulé : connexion au salon interrompue.", "error");
+          }
+        }
       });
   }
 
@@ -242,6 +381,7 @@
     if (channel && client) await client.removeChannel(channel);
     channel = null;
     stopHeartbeat();
+    stopCountdown();
   }
 
   function startHeartbeat() {
@@ -313,7 +453,10 @@
     ui.joinForm.addEventListener("submit", joinRoom);
     ui.copyInvite.addEventListener("click", copyInvite);
     ui.ready.addEventListener("click", toggleReady);
-    window.addEventListener("beforeunload", stopHeartbeat);
+    window.addEventListener("beforeunload", () => {
+      stopHeartbeat();
+      stopCountdown();
+    });
 
     if (!configured()) {
       setFormsDisabled(true);
