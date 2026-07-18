@@ -285,6 +285,15 @@ body.online-page {
   gap: 24px;
 }
 
+.online-game-screen > .online-game-heading,
+.online-secret-strip {
+  padding: clamp(16px, 2.5vw, 24px);
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(34, 41, 58, .97), rgba(24, 29, 42, .97));
+  box-shadow: var(--shadow);
+}
+
 .online-game-heading {
   display: flex;
   align-items: flex-start;
@@ -306,69 +315,135 @@ body.online-page {
   color: var(--muted);
 }
 
-.online-game-layout {
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(260px, .8fr);
-  gap: 24px;
-  align-items: center;
-}
-
-.online-board-preview {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+.online-game-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
-  width: min(100%, 470px);
-  aspect-ratio: 1;
-  margin: 0 auto;
-  padding: 12px;
-  border-radius: 20px;
-  background: rgba(0, 0, 0, .18);
 }
 
-.online-board-preview span {
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 13px;
-  background: rgba(255, 255, 255, .045);
-}
-
-.online-game-summary {
-  padding: 20px;
-  border: 1px solid rgba(255, 255, 255, .07);
-  border-radius: 16px;
-  background: rgba(0, 0, 0, .11);
-}
-
-.online-game-summary h3 {
+.online-match-header {
   margin-top: 0;
 }
 
-.online-game-summary p {
-  color: var(--muted);
-  line-height: 1.55;
+.online-turn-banner {
+  margin-top: -12px;
 }
 
-.online-game-summary dl {
+.online-secret-strip {
   display: grid;
-  gap: 10px;
-  margin: 20px 0 0;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 8px 14px;
+  box-shadow: none;
 }
 
-.online-game-summary dl div {
+.online-secret-strip > span {
+  color: var(--muted);
+  font-size: .8rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.online-secret-strip small {
+  color: var(--muted);
+  text-align: right;
+}
+
+.online-secret-color {
+  padding: 7px 13px;
+  border: 2px solid rgba(255, 255, 255, .25);
+  border-radius: 999px;
+  color: #fff;
+  background: var(--surface-3);
+  text-transform: uppercase;
+}
+
+.online-secret-color.red { background: var(--red); }
+.online-secret-color.blue { background: var(--blue); }
+.online-secret-color.yellow { color: #332907; background: var(--yellow); }
+
+.online-play-layout {
+  margin-top: -6px;
+}
+
+.online-control-panel {
+  align-content: start;
+}
+
+.online-game-meta {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
+  gap: 12px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, .07);
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  color: var(--muted);
+  font-size: .82rem;
 }
 
-.online-game-summary dt {
+.online-game-meta strong {
+  color: var(--text);
+}
+
+.online-forfeit-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.online-forfeit-actions .secondary-button.danger {
+  min-height: 48px;
+  padding-inline: 10px;
+  font-size: .82rem;
+}
+
+.online-series-forfeit {
+  border-color: rgba(255, 75, 89, .48) !important;
+  background: rgba(255, 75, 89, .18) !important;
+}
+
+.online-page .player-dot.p1,
+.online-page .board-cell.protected.last-owner-0::before {
+  background: #fff;
+  border: 2px solid #111318;
+}
+
+.online-page .player-dot.p2,
+.online-page .board-cell.protected.last-owner-1::before {
+  background: #050609;
+  border: 2px solid #fff;
+}
+
+.online-result-actions {
+  grid-template-columns: 1fr 1fr;
+}
+
+.online-next-ready-status {
+  min-height: 1.4em;
+  margin: 15px 0 0;
   color: var(--muted);
 }
 
-.online-game-summary dd {
-  margin: 0;
-  font-weight: 900;
-  text-align: right;
+#onlineResultOverlay {
+  background: rgba(5, 7, 12, .42);
+  backdrop-filter: blur(3px);
+}
+
+#onlineResultOverlay .result-modal {
+  background: rgba(25, 30, 43, .94);
+}
+
+.online-page .board-cell:disabled,
+.online-page .reserve-item:disabled {
+  color: inherit;
+}
+
+.online-page .board-cell.pending {
+  opacity: .72;
+}
+
+.online-page .player-card.you {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35);
 }
 
 .online-message {
@@ -413,12 +488,17 @@ body.online-page {
     grid-template-columns: 1fr;
   }
 
-  .online-game-layout {
-    grid-template-columns: 1fr;
-  }
-
   .online-status-card {
     order: -1;
+  }
+
+  .online-secret-strip {
+    grid-template-columns: 1fr auto;
+  }
+
+  .online-secret-strip small {
+    grid-column: 1 / -1;
+    text-align: left;
   }
 }
 
@@ -436,12 +516,21 @@ body.online-page {
     display: grid;
   }
 
+  .online-game-badges {
+    justify-content: flex-start;
+  }
+
   .online-brand img {
     width: 42px;
     height: 42px;
   }
 
   .online-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .online-forfeit-actions,
+  .online-result-actions {
     grid-template-columns: 1fr;
   }
 }

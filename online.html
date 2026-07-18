@@ -9,7 +9,8 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css?v=3">
   <link rel="stylesheet" href="tile-fix.css?v=5">
-  <link rel="stylesheet" href="online.css?v=2">
+  <link rel="stylesheet" href="result-score.css?v=2">
+  <link rel="stylesheet" href="online.css?v=3">
 </head>
 <body class="online-page">
   <main class="online-shell">
@@ -95,37 +96,125 @@
       </aside>
     </div>
 
-    <section id="onlineGameScreen" class="online-card online-game-screen online-hidden" aria-labelledby="onlineGameTitle">
+    <section id="onlineGameScreen" class="online-game-screen online-hidden" aria-labelledby="onlineGameTitle">
       <div class="online-game-heading">
         <div>
           <p class="eyebrow">Salon <span id="gameRoomCode">------</span></p>
-          <h2 id="onlineGameTitle">Partie lancée</h2>
+          <h2 id="onlineGameTitle">Partie Online</h2>
           <p id="gamePlayerSeat">Connexion au plateau en tant que joueur…</p>
         </div>
-        <div class="connection-badge connected">Salon actif</div>
+        <div class="online-game-badges">
+          <div id="gameConnectionBadge" class="connection-badge connected">Synchronisé</div>
+          <div id="opponentConnection" class="connection-badge connected">Adversaire connecté</div>
+        </div>
       </div>
 
-      <div class="online-game-layout">
-        <div class="online-board-preview" aria-hidden="true">
-          <span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span>
+      <div class="match-header online-match-header">
+        <div class="score-card player-card" id="onlinePlayer1Card">
+          <div class="player-title"><span class="player-dot p1"></span><strong>Joueur 1 · Créateur</strong></div>
+          <div class="player-stats">
+            <span>Manches <b id="onlineScoreP1">0</b></span>
+            <span id="onlineClockP1Wrap" class="clock online-hidden">⏱ <b id="onlineClockP1">30:00</b></span>
+          </div>
         </div>
-        <div class="online-game-summary">
-          <h3>Préparation du plateau synchronisé…</h3>
-          <p>Les deux joueurs ont rejoint l’écran de partie. La connexion au salon reste active.</p>
-          <dl>
-            <div><dt>Format</dt><dd id="gameSeriesLength">—</dd></div>
-            <div><dt>Chronomètres</dt><dd id="gameTimersEnabled">—</dd></div>
-          </dl>
+
+        <div class="round-card">
+          <span id="gameSeriesLength">—</span>
+          <strong id="onlineRoundLabel">Manche 1</strong>
+          <small id="onlineMoveLabel">Coup 1 / 50</small>
         </div>
+
+        <div class="score-card player-card" id="onlinePlayer2Card">
+          <div class="player-title"><span class="player-dot p2"></span><strong>Joueur 2 · Invité</strong></div>
+          <div class="player-stats">
+            <span>Manches <b id="onlineScoreP2">0</b></span>
+            <span id="onlineClockP2Wrap" class="clock online-hidden">⏱ <b id="onlineClockP2">30:00</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="turn-banner online-turn-banner">
+        <div>
+          <span id="onlineTurnText">Chargement du tour…</span>
+          <small id="onlinePhaseText">Synchronisation du plateau</small>
+        </div>
+        <div id="onlineTurnClockWrap" class="turn-clock online-hidden">
+          <span>Ce coup</span>
+          <strong id="onlineTurnClock">1:00</strong>
+        </div>
+      </div>
+
+      <div class="online-secret-strip">
+        <span>Votre couleur secrète</span>
+        <strong id="onlineSecretColor" class="online-secret-color">—</strong>
+        <small>Elle n’est jamais transmise à votre adversaire pendant la manche.</small>
+      </div>
+
+      <div class="game-layout online-play-layout">
+        <section class="board-panel" aria-label="Plateau de jeu Online">
+          <div id="onlineBoard" class="board" role="grid" aria-label="Plateau 4 par 4"></div>
+          <p id="onlineBoardHint" class="board-hint" aria-live="polite">Chargement du plateau…</p>
+        </section>
+
+        <aside class="control-panel online-control-panel">
+          <section class="panel-block">
+            <div class="panel-heading">
+              <h2>Action</h2>
+              <span id="onlineEmptyCount">16 cases libres</span>
+            </div>
+            <div id="onlineActionButtons" class="action-buttons">
+              <button type="button" data-action="place" class="action-button active">Poser</button>
+              <button type="button" data-action="flip" class="action-button" disabled>Retourner</button>
+              <button type="button" data-action="move" class="action-button" disabled>Déplacer</button>
+            </div>
+          </section>
+
+          <section class="panel-block">
+            <div class="panel-heading">
+              <h2>Votre réserve</h2>
+              <span id="onlineReserveOwner">Joueur —</span>
+            </div>
+            <p class="microcopy">Touchez une tuile pour la choisir. Touchez-la à nouveau pour changer de face.</p>
+            <div id="onlineReserveList" class="reserve-list"></div>
+          </section>
+
+          <section class="panel-block compact-block">
+            <div class="legend-row"><span class="protected-sample">🔒</span><span>Protégée pendant ce tour</span></div>
+            <div class="legend-row"><span class="center-sample"></span><span>Seule la couleur centrale compte</span></div>
+            <div class="online-game-meta"><span>Chronomètres</span><strong id="gameTimersEnabled">—</strong></div>
+          </section>
+
+          <div class="online-forfeit-actions">
+            <button id="forfeitRoundButton" class="secondary-button danger" type="button">Abandonner la partie</button>
+            <button id="forfeitSeriesButton" class="secondary-button danger online-series-forfeit" type="button">Abandonner le BO</button>
+          </div>
+        </aside>
       </div>
     </section>
   </main>
 
+  <div id="onlineResultOverlay" class="overlay online-hidden" role="dialog" aria-modal="true" aria-labelledby="onlineResultTitle">
+    <div class="modal result-modal">
+      <p id="onlineResultKicker" class="eyebrow">Fin de la manche</p>
+      <h2 id="onlineResultTitle">Résultat</h2>
+      <p id="onlineResultReason"></p>
+      <div id="onlineResultScore" class="result-scoreboard"></div>
+      <div id="onlineRevealedColors" class="revealed-colors"></div>
+      <div id="onlineNextCountdown" class="room-countdown online-hidden" role="status" aria-live="assertive">
+        <span>Manche suivante dans</span>
+        <strong id="onlineNextCountdownValue">5</strong>
+        <small>secondes</small>
+      </div>
+      <p id="onlineNextReadyStatus" class="online-next-ready-status"></p>
+      <div class="modal-actions online-result-actions">
+        <button id="onlineNextReadyButton" class="primary-button" type="button">Prêt pour la manche suivante</button>
+        <button id="onlineReturnButton" class="secondary-button" type="button">Retour à l’accueil Online</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/online-config.js?v=1"></script>
-  <script src="js/online-app.js?v=2"></script>
+  <script src="js/online-app.js?v=3"></script>
 </body>
 </html>
