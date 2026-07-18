@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="styles.css?v=3">
   <link rel="stylesheet" href="tile-fix.css?v=5">
   <link rel="stylesheet" href="result-score.css?v=2">
-  <link rel="stylesheet" href="online.css?v=3">
+  <link rel="stylesheet" href="online.css?v=4">
 </head>
 <body class="online-page">
   <main class="online-shell">
@@ -22,7 +22,13 @@
           <h1>Bingo réversible : Online</h1>
         </div>
       </div>
-      <a class="secondary-button" href="index.html">Version locale</a>
+      <div class="online-topbar-actions">
+        <div id="onlineLanguageSwitch" class="language-switch" role="group" aria-label="Choisir la langue" data-no-i18n="true">
+          <button type="button" data-language="fr" aria-label="Français">FR</button>
+          <button type="button" data-language="en" aria-label="English">EN</button>
+        </div>
+        <button id="onlineRulesButton" class="icon-button" type="button" aria-label="Afficher les règles" title="Règles">?</button>
+      </div>
     </header>
 
     <div class="online-grid">
@@ -213,8 +219,39 @@
     </div>
   </div>
 
+  <div id="onlineRulesOverlay" class="overlay online-hidden" role="dialog" aria-modal="true" aria-labelledby="onlineRulesTitle">
+    <div class="modal rules-modal online-rules-modal">
+      <button id="onlineRulesCloseButton" class="modal-close" type="button" aria-label="Fermer">×</button>
+      <p class="eyebrow">Comment jouer</p>
+      <h2 id="onlineRulesTitle">Règles de Bingo réversible</h2>
+      <div class="rules-content">
+        <h3>But</h3>
+        <p>Chaque joueur reçoit secrètement une couleur parmi rouge, jaune et bleu. Alignez quatre centres de votre couleur horizontalement, verticalement ou sur une grande diagonale.</p>
+
+        <h3>Les tuiles</h3>
+        <p>Chaque joueur possède trois exemplaires de chacune des trois tuiles réversibles : rouge/bleu, jaune/rouge et bleu/jaune. Vous choisissez librement la face visible au moment de la pose.</p>
+
+        <h3>Déroulement</h3>
+        <p>Tant qu’il reste plus de deux cases libres, poser une tuile est obligatoire. Dès qu’il ne reste que deux cases libres, vous pouvez à chaque tour poser, retourner ou déplacer une tuile d’une case horizontalement ou verticalement vers une case vide.</p>
+
+        <h3>Protection</h3>
+        <p>La tuile utilisée au coup précédent ne peut être ni retournée ni déplacée par l’adversaire. Elle redevient disponible au tour suivant.</p>
+
+        <h3>Mode Online</h3>
+        <p>Le serveur valide chaque coup et ne transmet à chaque joueur que sa propre couleur secrète. Après une manche, les deux joueurs doivent être prêts avant le décompte synchronisé de cinq secondes.</p>
+
+        <h3>Déconnexion et abandon</h3>
+        <p>Une déconnexion laisse 45 secondes pour revenir avant de perdre la manche. « Abandonner la partie » concède la manche en cours ; « Abandonner le BO » concède toute la série.</p>
+
+        <h3>Fin de manche</h3>
+        <p>Une manche est nulle après trois répétitions de la même position complète ou si personne ne gagne au 50e coup. Avec les chronomètres activés, dépasser une minute pour un coup ou épuiser ses trente minutes fait perdre la manche.</p>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/online-config.js?v=1"></script>
   <script src="js/online-app.js?v=3"></script>
+  <script src="js/online-i18n.js?v=1"></script>
 </body>
 </html>
